@@ -4,7 +4,7 @@
 
 int main ()
 {
-    int temp, num, loop = 0;
+    int temp, num_jogadores, loop = 0;
 
     do {
         printf ("Digite o numero de jogadores (2 a 8): \n");
@@ -15,10 +15,10 @@ int main ()
         }
         else 
         {
-            num = temp;
+            num_jogadores = temp;
             loop = 1;
         }
     } while (loop == 0);
-    printf ("%d jogadores\n", num);
+    printf ("%d jogadores\n", num_jogadores);
     return 0;
 }
