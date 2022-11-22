@@ -1,0 +1,47 @@
+0 - 4 ouros
+1 - 4 espadas
+2 - 4 copas
+3 - 5 ouros
+4 - 5 espadas
+5 - 5 copas
+6 - 5 paus
+7 - 6 ouros
+8 - 6 espadas
+9 - 6 copas
+10 - 6 paus
+11 - 7 espadas
+12 - 7 paus
+13 - 11 ouros
+14 - 11 espadas
+15 - 11 copas
+16 - 11 paus
+17 - 12 ouros
+18 - 12 espadas
+19 - 12 copas
+20 - 12 paus
+21 - 13 ouros
+22 - 13 espadas
+23 - 13 copas
+24 - 13 paus
+25 - 1 ouros
+26 - 1 copas
+27 - 1 paus 
+28 - 2 ouros
+29 - 2 espadas
+30 - 2 copas
+31 - 2 paus
+32 - 3 ouros
+33 - 3 espadas
+34 - 3 copas
+35 - 3 paus
+36 - 7 ouros
+37 - 1 espadas
+38 - 7 copas
+39 - 4 paus
+
+
+
+paus 4
+copas 3
+espadas 2
+ouros 1
