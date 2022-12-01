@@ -3,6 +3,7 @@
 #include <wchar.h>
 #include <locale.h>
 #include <time.h>
+#include <string.h>
 #define MAX 40
 
 ////////////////////////BARALHO///////////////
@@ -37,6 +38,9 @@ void liberaJogador (jogador *j);
 void nomeJogadores (jogador *j, int num_jogadores);
 carta* criaCarta ();
 int constroiCarta (baralho *b, carta *c);
+void preencheBaralho (carta *c, baralho *b);
+int calcularCartas (int num_jogadores, int num_cartas_mao);
+int distribuirCartas (int num_cartas_mao, jogador *j, baralho *b, int num_jogadores);
 
 
 
@@ -47,7 +51,8 @@ int main ()
     jogador *j;
     carta *c;
 
-	int temp, inserir, num_jogadores, loop = 0, cartas = 5, constroi;
+	int temp, inserir, num_jogadores, num_cartas_mao = 5, loop = 0, cartas = 5, constroi, cartas_distribuidas, vence_turnos;
+    char *naipe_char, *familia_real, *as;
 
     //Pede o numero de jogadores
     num_jogadores = numeroJogadores();
@@ -64,6 +69,10 @@ int main ()
 
     //Pegar o nome dos jogadores
     nomeJogadores (j, num_jogadores);
+
+    //calcular o numero de cartas
+    num_cartas_mao = calcularCartas (num_jogadores, num_cartas_mao);
+    printf ("Numero de cartas por jogador: %d\n", num_cartas_mao);
 
     //cria baralho (vetor e topo)
     b = criaBaralho();
@@ -84,7 +93,7 @@ int main ()
     }
     else if (inserir == 1)
     {
-        printf ("Baralho criado com sucesso\n");
+        printf ("Cartas adicionadas com sucesso\n");
     }
 
     //criar cartas
@@ -106,6 +115,109 @@ int main ()
     {
         printf ("Cartas construidas com sucesso\n");
     }
+
+    //preencher o baralho
+    preencheBaralho (c, b);
+
+    //distribuir as cartas
+    cartas_distribuidas = distribuirCartas (num_cartas_mao, j, b, num_jogadores);
+    if (cartas_distribuidas == 0)
+    {
+        printf ("Erro ao distribuir as cartas\n");
+        return 1;
+    }
+    else if (cartas_distribuidas == 1)
+    {
+        printf ("Cartas distribuidas com sucesso\n");
+    }
+
+    //Comeca o jogo
+
+    //Print de cartas_distribuidas /////////////////Consertar cartas e trasnformar em funcao
+    for (int i = 0; i < num_cartas_mao; i++)
+    {
+        switch (j->mao[i].naipe)
+        {
+            case 1:
+                naipe_char = "Ouros";
+                break;
+            case 2:
+                naipe_char = "Espadas";
+                break;
+            case 3:
+                naipe_char = "Copas";
+                break;
+            case 4:
+                naipe_char = "Paus";
+                break;
+        }
+        switch (j->mao[i].valor)
+        {
+            case 1:
+                as = "As";
+                break;
+            case 11:
+                familia_real = "Dama";
+                break;
+            case 12:
+                familia_real = "Valete";
+                break;
+            case 13:
+                familia_real = "Rei";
+                break;
+        }
+        printf ("Carta %d: %d de %s\n", i+1, j->mao[i].valor, naipe_char);
+    }
+
+    printf ("Escolha quantas turnos voce faz: 1 2 3 4 ou 5\n");
+    scanf ("%d", &temp);
+    if (temp < 1 || temp > 5)
+    {
+        printf ("Numero invalido, tente novamente\n");
+        return 1; /////////////////////////////////////////////////////FAZER LOOP/////////////////////////////////////////////////////////////////////////////
+    }
+    else
+    {
+        printf ("Voce escolheu %d turnos\n", temp);\
+        vence_turnos = temp;
+    }
+
+    //Escolha de cartas
+    for (int i = 0; i < num_cartas_mao; i++)
+    {
+        if (j->mao[i].valor == 1 )
+        {
+            printf ("%s de %s ,", as, naipe_char);
+        }
+        else if (j->mao[i].valor == 11 || j->mao[i].valor == 12 || j->mao[i].valor == 13)
+        {
+            printf ("%s de %s, ", familia_real, naipe_char);
+        }
+        else
+        {
+            printf ("%d de %s, ", j->mao[i].valor, naipe_char);
+        }
+    }
+    printf ("\nEscolha qual carta deseja jogar\n");
+    scanf ("%d", &temp);
+    if (temp < 1 || temp > 5)
+    {
+        printf ("Numero invalido, tente novamente\n");
+        return 1; /////////////////////////////////////////////////////FAZER LOOP/////////////////////////////////////////////////////////////////////////////
+    }
+    else
+    {
+        printf ("Voce escolheu a carta %d de %d\n", j->mao[temp-1].valor, j->mao[temp-1].naipe);
+    }
+
+    /*for (int i = 0; i < num_jogadores; i++)
+    {
+        for (int k = 0; k < num_cartas_mao; k++)
+        {
+           printf ("Carta %d: %d %d %d\n", k, j[i].mao[k].carta_id, j[i].mao[k].valor, j[i].mao[k].naipe);
+        }
+    }*/
+
     
         
 
@@ -254,11 +366,16 @@ carta* criaCarta ()
 }
 
 int constroiCarta (baralho *b, carta *c)
-{
+{   
+    for (int i = 0; i < MAX; i++)
+    {
+        c[i].carta_id = i;
+        //printf ("carta_id: %i\n", c[i].carta_id);
+    }
     int count = 0;
     for (int i = 0; i < MAX; i++)
     {
-        switch (b->vetor[b->topo].carta_id)
+        switch (b->vetor[i].carta_id)
         {
             case 0: c[i].valor = 4; c[i].naipe = 1; count++; printf ("%i \n", c[i].valor); break;
             case 1: c[i].valor = 4; c[i].naipe = 2; count++; printf ("%i \n", c[i].valor); break;
@@ -300,12 +417,54 @@ int constroiCarta (baralho *b, carta *c)
             case 37: c[i].valor = 1; c[i].naipe = 2; count++; printf ("%i \n", c[i].valor); break;
             case 38: c[i].valor = 7; c[i].naipe = 3; count++; printf ("%i \n", c[i].valor); break;
             case 39: c[i].valor = 4; c[i].naipe = 4; count++; printf ("%i \n", c[i].valor); break;
+            default: printf ("Erro! \n"); break;
         }
-        count++;
     }
     printf("count: %i\n", count);
     return count;
 }
+
+void preencheBaralho (carta *c, baralho *b)
+{
+    for (int i = 0; i < 40; i++)
+    {
+        b->vetor[i] = c[i];
+        //printf ("Carta %d: %d %d %d\n", i, c[i].carta_id, c[i].valor, c[i].naipe);
+        //printf ("Carta %d: %d %d %d\n", i, b->vetor[i].carta_id, b->vetor[i].valor, b->vetor[i].naipe);
+    }
+}
+
+int calcularCartas (int num_jogadores, int num_cartas_mao)
+{
+    if (num_cartas_mao == 0)
+    {
+        num_cartas_mao = 5;
+    }
+    return num_cartas_mao;
+}
+
+int distribuirCartas (int num_cartas_mao, jogador *j, baralho *b, int num_jogadores)
+{
+    int count = 0;
+    for (int i = 0; i < num_jogadores; i++)
+    {
+        for (int k = 0; k < num_cartas_mao; k++)
+        {
+            j[i].mao[k] = b->vetor[b->topo-1];
+            b->topo--;
+            count++;
+        }
+    }
+    if (count == num_cartas_mao * num_jogadores)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 
 
 /*    carta *c;
