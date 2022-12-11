@@ -190,7 +190,7 @@ int main ()
 
     printf ("\n");
 
-    for (int i = b->topo; i > 0; i--)
+    for (int i = 40; i > 0; i--)
     {
         printf ("Carta %d: %d de %d   topo: %d\n", b->vetor[i].carta_id, b->vetor[i].valor, b->vetor[i].naipe, b->topo);
     }
@@ -500,11 +500,19 @@ int constroiCarta (baralho *b, carta *c)
 
 void preencheBaralho (carta *c, baralho *b) 
 {
-    for (int i = 0; i < 40; i++)
+    for (int i = 0; i < 40; )
     {
-        b->vetor[i] = c[i];
-        //printf ("Carta %d: %d %d %d\n", i, c[i].carta_id, c[i].valor, c[i].naipe);
-        //printf ("Carta %d: %d %d %d\n", i, b->vetor[i].carta_id, b->vetor[i].valor, b->vetor[i].naipe);
+        for (int j = 0; j < 40; j++)
+        {
+            if (b->vetor[i].carta_id == c[j].carta_id)
+            {
+                printf ("Carta %d I: ID:%d VALOR:%d NAIPE:%d\n", i, b->vetor[i].carta_id, b->vetor[i].valor, b->vetor[i].naipe);
+                printf ("Carta %d J: ID:%d VALOR:%d NAIPE:%d\n", j, c[j].carta_id, c[j].valor, c[j].naipe);
+                b->vetor[i] = c[j];
+                i++;
+            }
+        }
+        
     }
 }
 
