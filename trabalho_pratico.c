@@ -51,10 +51,13 @@ void nomeJogadores(jogador *j, int num_jogadores);
 carta *criaCarta();
 int constroiCarta(baralho *b, carta *c);
 void preencheBaralho(carta *c, baralho *b);
-int calcularCartas(int num_jogadores, int num_cartas_mao, int *num_cartas_status);
+int calcularCartas(int num_cartas_mao, int *num_cartas_status);
 int distribuirCartas(int num_cartas_mao, jogador *j, baralho *b, int num_jogadores);
 void intToString(jogador *j, int num_cartas_mao, int num_jogadores);
+int verificaMaiorCartaMesa(jogador *j, mesa *m, int count_of_cards_mesa, int num_jogadores);
+void verificaRodadasVencidas(jogador *j, mesa *m, int count_of_cards_mesa, int num_jogadores);
 void printCartasMao(jogador *j, int num_jogadores, int num_cartas_mao);
+void printCartasJogador(jogador *j, int posicao, int num_cartas_mao);
 
 int main()
 {
@@ -63,8 +66,7 @@ int main()
     carta *c;
     mesa *m;
 
-    int temp, inserir, num_jogadores, num_cartas_mao = 6, num_cartas_status = 1, loop = 0, cartas = 5, constroi, cartas_distribuidas, count_of_cards_mesa = 0;
-    char *familia_real, *as;
+    int temp, inserir, num_jogadores, num_cartas_jogador, num_cartas_mao = 6, num_cartas_status = 1, constroi, cartas_distribuidas, count_of_cards_mesa = 0;
 
     // Pede o numero de jogadores
     num_jogadores = numeroJogadores();
@@ -77,7 +79,7 @@ int main()
         printf("Erro ao criar a lista de jogadores\n");
         return 1;
     }
-    printf("Lista de jogadores criada com sucesso\n");
+    // printf("Lista de jogadores criada com sucesso\n");
 
     // Pegar o nome dos jogadores
     nomeJogadores(j, num_jogadores);
@@ -93,7 +95,7 @@ int main()
             printf("Erro ao criar o baralho\n");
             return 1;
         }
-        printf("Baralho criado com sucesso\n");
+        // printf("Baralho criado com sucesso\n");
 
         // inserir cartas no baralho
         inserir = inserirBaralho(b); // Cria um veor de numeros aleatorios entre 0 e 39
@@ -105,7 +107,7 @@ int main()
         }
         else if (inserir == 1)
         {
-            printf("Cartas adicionadas com sucesso\n");
+            // printf("Cartas adicionadas com sucesso\n");
         }
 
         // criar cartas
@@ -125,15 +127,15 @@ int main()
         }
         else if (constroi == 40)
         {
-            printf("Cartas construidas com sucesso\n");
+            // printf("Cartas construidas com sucesso\n");
         }
 
         // preencher o baralho
         preencheBaralho(c, b); // Preenche o baralho com as cartas
 
         // calcular o numero de cartas
-        num_cartas_mao = calcularCartas(num_jogadores, num_cartas_mao, &num_cartas_status); // IF num_cartas_mao = 5, 4, 3, 2 = num_cartas_status = -1 ELSE IF num_cartas_mao = 1 = num_cartas_status = 1
-        printf("Numero de cartas por jogador: %d\n", num_cartas_mao);
+        num_cartas_mao = calcularCartas(num_cartas_mao, &num_cartas_status); // IF num_cartas_mao = 5, 4, 3, 2 = num_cartas_status = -1 ELSE IF num_cartas_mao = 1 = num_cartas_status = 1
+        // printf("Numero de cartas por jogador: %d\n", num_cartas_mao);
 
         // distribuir as cartas
         cartas_distribuidas = distribuirCartas(num_cartas_mao, j, b, num_jogadores);
@@ -144,7 +146,7 @@ int main()
         }
         else if (cartas_distribuidas == 1)
         {
-            printf("Cartas distribuidas com sucesso\n");
+            // printf("Cartas distribuidas com sucesso\n");
         }
 
         /////////////////****************Aloca Espaco para o naipe e as cartas especiais****************/////////////////////
@@ -155,7 +157,7 @@ int main()
         }
         else
         {
-            printf("Espaco alocado com sucesso\n");
+            // printf("Espaco alocado com sucesso\n");
         }
 
         // Cria a mesa
@@ -167,92 +169,110 @@ int main()
         intToString(j, num_cartas_mao, num_jogadores);
 
         // Print de cartas_distribuidas
-        printCartasMao(j, num_jogadores, num_cartas_mao);
+        // printCartasMao(j, num_jogadores, num_cartas_mao);
 
         // Escolha de turnos
-
-        for (int i = 0; i < num_jogadores; i++)
+        do // Dentro do jogo
         {
-        TURNOS:
-            printf("Jogador %d, ", i + 1);
-            printf("\nEscolha quantas turnos voce faz:\n"); /// Depende da quantidade de cartas na mao
-            scanf("%d", &temp);
-            if (temp < 1 || temp > 5)
-            {
-                printf("\nNumero invalido, tente novamente\n");
-                goto TURNOS;
-            }
-            else
-            {
-                printf("Voce escolheu %d turnos\n", temp);
-                j[i].vence_turnos = temp;
-            }
-        }
+            num_cartas_jogador = num_cartas_mao;
 
-        // Escolha de cartas e jogadas
-        printCartasMao(j, num_jogadores, num_cartas_mao);
-
-        for (int i = 0; i < num_jogadores; i++)
-        {
-        CARTAS:
-            printf("Jogador %d, ", i + 1);
-            printf("\nEscolha qual carta deseja jogar\n");
-            scanf("%d", &temp);
-            temp--;
-            if (temp < 0 || temp > 5)
+            for (int l = 0; l < num_jogadores; l++) // Dentro das rodadas
             {
-                printf("Numero invalido, tente novamente\n");
-                goto CARTAS;
+                j[l].vence_turnos = -1;
             }
-            else
+
+            for (int g = 0; g < num_cartas_mao; g++) // Dentro das rodadas
             {
-                if (j->mao[temp].valor == 1)
+                for (int i = 0; i < num_jogadores; i++) // Dentro de uma rodada
                 {
-                    printf("%s de %s ,", j->mao[temp].extras, j->mao[temp].naipe_char);
-                }
-                else if (j->mao[temp].valor == 11 || j->mao[temp].valor == 12 || j->mao[temp].valor == 13)
-                {
-                    printf("%s de %s, ", j->mao[temp].extras, j->mao[temp].naipe_char);
-                }
-                else
-                {
-                    printf("%d de %s, ", j->mao[temp].valor, j->mao[temp].naipe_char);
-                }
+                    printCartasJogador(j, i, num_cartas_jogador);
+                    if (j[i].vence_turnos == -1)
+                    {
+                    TURNOS:
+                        printf("\nEscolha quantas turnos voce faz:\n"); /// Depende da quantidade de cartas na mao
+                        scanf("%d", &temp);
+                        if (temp < 0 || temp > 5)
+                        {
+                            printf("\nNumero invalido, tente novamente\n");
+                            goto TURNOS;
+                        }
+                        else
+                        {
+                            printf("Voce escolheu %d turnos\n", temp);
+                            j[i].vence_turnos = temp;
+                        }
+                    }
 
-                m->cartas_mesa[count_of_cards_mesa] = j->mao[temp];
-                printf("Carta %d: %d %d %s\n", count_of_cards_mesa, m->cartas_mesa[count_of_cards_mesa].carta_id, m->cartas_mesa[count_of_cards_mesa].valor, m->cartas_mesa[count_of_cards_mesa].naipe_char);
-                count_of_cards_mesa++;
+                    // Escolha de cartas e jogadas
+
+                CARTAS:
+                    printf("\nEscolha qual carta deseja jogar\n");
+                    scanf("%d", &temp);
+                    printf("temp: %d\n", temp);
+                    temp--;
+                    if (temp < 0 || temp > 4)
+                    {
+                        printf("Numero invalido, tente novamente\n");
+                        goto CARTAS;
+                    }
+                    else
+                    {
+                        if (j[i].mao[temp].valor == 1)
+                        {
+                            printf("%s de %s,", j[i].mao[temp].extras, j[i].mao[temp].naipe_char);
+                        }
+                        else if (j[i].mao[temp].valor == 11 || j[i].mao[temp].valor == 12 || j[i].mao[temp].valor == 13)
+                        {
+                            printf("%s de %s, ", j[i].mao[temp].extras, j[i].mao[temp].naipe_char);
+                        }
+                        else
+                        {
+                            printf("%d de %s, ", j[i].mao[temp].valor, j[i].mao[temp].naipe_char);
+                        }
+
+                        m->cartas_mesa[count_of_cards_mesa] = j[i].mao[temp];
+                        count_of_cards_mesa++;
+                        j[i].mao[temp] = j[i].mao[num_cartas_mao - 1]; // Troca a carta jogada com a ultima carta da mao
+
+                        system("pause"); // Pausa o programa
+                        system("cls");   // Limpa a tela
+                    }
+                }
+                int vencedor_rodada = verificaMaiorCartaMesa(j, m, count_of_cards_mesa, num_jogadores);
+                printf("Vencedor da rodada: %s \n", j[vencedor_rodada].nome);
+                system("pause");      // Pausa o programa
+                system("cls");        // Limpa a tela
+                num_cartas_jogador--; // Diminui o numero de cartas do jogador
+
+                for (int i = 0; i < num_jogadores; i++)
+                {
+                    printf("%s: %d vidas, turnos vencidos: %d, vencer: %d\n", j[i].nome, j[i].vidas, j[i].turnos_vencidos, j[i].vence_turnos);
+                }
             }
-        }
+            // Verifica se o jogador venceu a rodada
+            verificaRodadasVencidas(j, m, count_of_cards_mesa, num_jogadores);
 
-        // Adiciona carta a mesa
+            for (int i = 0; i < num_jogadores; i++)
+            {
+                printf("Jogador %s: %d vidas \n", j[i].nome, j[i].vidas);
+                if (j[i].vidas == 0)
+                {
+                    printf("%s - Eliminado \n", j[i].nome);
+                    j[i] = j[num_jogadores - 1];
+                    num_jogadores--;
+                }
+            }
+            calcularCartas(num_cartas_mao, &num_cartas_status); // IF num_cartas_mao = 5, 4, 3, 2 = num_cartas_status = -1 ELSE IF num_cartas_mao = 1, 0 = num_cartas_status = 1
+
+        } while (num_jogadores != 1);
+
+        printf("Vencedor: %s", j[0].nome);
+        printf("Fim de jogo\n");
 
     } while (num_jogadores != 0);
 
-    // Verifica qual a maior carta da mesa
-
-    /*for (int i = 0; i < num_jogadores; i++)
-    {
-        for (int k = 0; k < num_cartas_mao; k++)
-        {
-           printf ("Carta %d: %d %d %d\n", k, j[i].mao[k].carta_id, j[i].mao[k].valor, j[i].mao[k].naipe);
-        }
-    }*/
-
-    /*for (int i = 0; i < 40; i++)
-    {
-        temp = i;
-        //adiciona a pilha/baralho
-        inserir = inserirBaralho (b, temp);
-        if (inserir == 1)
-        {
-            printf ("numero adicionado: %i\n", b->vetor[b->topo-1]);
-        }
-        else
-        {
-            printf ("Erro ao adicionar numero: %i\n", temp);
-        }
-    }*/
+    printf("Vencedor: %s", j[0].nome);
+    printf("Fim de jogo\n");
 
     liberaBaralho(b);
     liberaJogador(j);
@@ -306,6 +326,7 @@ int alocaCartasMao(jogador *j, int num_jogadores, int num_cartas_mao)
             return 1;
         }
     }
+    return -1;
 }
 
 void liberaJogador(jogador *j)
@@ -322,7 +343,9 @@ void nomeJogadores(jogador *j, int num_jogadores)
         scanf("%s", &j[loop].nome[0]);                     // salva o nome do jogador
         j[loop].jogador_id = loop + 1;                     // salva o id do jogador
         j[loop].vidas = 5;                                 // salva a quantidade de vidas do jogador
-        ++loop;                                            // incrementa o loop
+        j[loop].turnos_vencidos = 0;
+        j[loop].vence_turnos = 0;
+        ++loop; // incrementa o loop
     } while (loop < num_jogadores);
 }
 
@@ -349,7 +372,7 @@ mesa *criaMesa()
 int inserirBaralho(baralho *b) // insere um numero no baralho
 
 {
-    int temp, loop_temp = 0;
+    int temp;
     srand(time(NULL)); // inicializa o gerador de numeros aleatorios
     if (b->topo == MAX)
     {
@@ -608,7 +631,7 @@ int constroiCarta(baralho *b, carta *c)
         }
     }
 
-    printf("count: %i\n", count);
+    // printf("count: %i\n", count);
     return count;
 }
 
@@ -621,7 +644,7 @@ void preencheBaralho(carta *c, baralho *b)
     }
 }
 
-int calcularCartas(int num_jogadores, int num_cartas_mao, int *num_cartas_status)
+int calcularCartas(int num_cartas_mao, int *num_cartas_status)
 {
     if (num_cartas_mao == 6)
         *num_cartas_status = -1;
@@ -707,7 +730,7 @@ void intToString(jogador *j, int num_cartas_mao, int num_jogadores)
     }
 }
 
-void verificaMaiorCartaMesa(jogador *j, int count_of_cards_mesa, mesa *m, int num_jogadores)
+int verificaMaiorCartaMesa(jogador *j, mesa *m, int count_of_cards_mesa, int num_jogadores)
 {
     int maior_carta_mesa = 0;
     int posicao_maior_carta_mesa;
@@ -722,6 +745,11 @@ void verificaMaiorCartaMesa(jogador *j, int count_of_cards_mesa, mesa *m, int nu
 
     j[posicao_maior_carta_mesa].turnos_vencidos++;
 
+    return posicao_maior_carta_mesa;
+}
+
+void verificaRodadasVencidas(jogador *j, mesa *m, int count_of_cards_mesa, int num_jogadores)
+{
     for (int i = 0; i < num_jogadores; i++)
     {
         if (j[i].turnos_vencidos == j[i].vence_turnos)
@@ -731,7 +759,7 @@ void verificaMaiorCartaMesa(jogador *j, int count_of_cards_mesa, mesa *m, int nu
         else
         {
             printf("O jogador %d nao fez todos os turnos\n", i);
-            j[i].vidas--;
+            j[i].vidas = j[i].vidas - (j[i].vence_turnos - j[i].turnos_vencidos); // verifica quantas vidas o jogador perdeu
         }
     }
 }
@@ -746,7 +774,7 @@ void printCartasMao(jogador *j, int num_jogadores, int num_cartas_mao)
         {
             if (j[i].mao[k].valor == 1)
             {
-                printf("%s de %s,", j[i].mao[k].extras, j[i].mao[k].naipe_char);
+                printf("%s de %s, ", j[i].mao[k].extras, j[i].mao[k].naipe_char);
             }
             else if (j[i].mao[k].valor == 11 || j[i].mao[k].valor == 12 || j[i].mao[k].valor == 13)
             {
@@ -759,6 +787,28 @@ void printCartasMao(jogador *j, int num_jogadores, int num_cartas_mao)
         }
         printf("\n");
     }
+}
+
+void printCartasJogador(jogador *j, int posicao, int num_cartas_jogador)
+{
+    printf("Jogador %s: ", j[posicao].nome);
+
+    for (int k = 0; k < num_cartas_jogador; k++)
+    {
+        if (j[posicao].mao[k].valor == 1)
+        {
+            printf("%s de %s, ", j[posicao].mao[k].extras, j[posicao].mao[k].naipe_char);
+        }
+        else if (j[posicao].mao[k].valor == 11 || j[posicao].mao[k].valor == 12 || j[posicao].mao[k].valor == 13)
+        {
+            printf("%s de %s, ", j[posicao].mao[k].extras, j[posicao].mao[k].naipe_char);
+        }
+        else
+        {
+            printf("%d de %s, ", j[posicao].mao[k].valor, j[posicao].mao[k].naipe_char);
+        }
+    }
+    printf("\n");
 }
 /*    carta *c;
 
